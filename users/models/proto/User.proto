@@ -1,0 +1,9 @@
+syntax = "proto3";
+package models;
+
+
+message User { 
+    string ID = 1;
+    string OfficeID = 2;
+    string Name = 3;
+}
