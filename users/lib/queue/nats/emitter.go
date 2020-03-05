@@ -1,7 +1,6 @@
 package nats
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/grammeaway/users_poc/users/lib/queue"
@@ -26,11 +25,9 @@ func NewNatsEventEmitter(connection *nats.EncodedConn, exchange, queue string) (
 
 func (n *natsEventEmitter) Emit(e queue.Event) error {
 	err := n.connection.Publish(e.GetID(), e)
-	fmt.Printf("Event emitted for subject: %s \n", e.GetID())
 	if err != nil {
 		log.Fatal(err)
 		return err
 	}
-	//fmt.Println("Event emitted")
 	return nil
 }
