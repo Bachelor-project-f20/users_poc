@@ -2,25 +2,37 @@ package creating
 
 import (
 	"fmt"
+	"time"
 
+	ob "github.com/dueruen/go-outbox"
 	pb "github.com/grammeaway/users_poc/users/models/proto/gen"
 )
 
-type Outbox interface {
-	Insert(interface{}) error //ID of sorts for return val as well?
+type Service interface {
+	CreateUser(user *pb.User) error
 }
 
-type Service struct {
-	ob Outbox
+type service struct {
+	ob ob.Outbox
 }
 
-func (srv *Service) CreateUser(user *pb.User) error {
-	err := srv.ob.Insert(user)
+func NewService(outbox ob.Outbox) Service {
+	return &service{outbox}
+}
+
+func (srv *service) CreateUser(user *pb.User) error {
+	event := ob.Event{
+		ID:        "test",
+		Publisher: "test",
+		EventName: "user_created",
+		Timestamp: time.Now().UnixNano(),
+		Payload:   []byte("test"),
+	}
+
+	err := srv.ob.Insert(user, event)
 
 	if err != nil {
 		fmt.Println("Error during creation of user. Err: ", err)
 	}
-
-	//publish event here?
 	return err
 }
