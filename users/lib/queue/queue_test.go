@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	ob "github.com/dueruen/go-outbox"
 	lnats "github.com/grammeaway/users_poc/users/lib/queue/nats"
 	"github.com/nats-io/go-nats"
 )
@@ -60,10 +61,12 @@ func TestEmit(t *testing.T) {
 		t.Error(err)
 	}
 
-	event := &Event{
-		"test",
-		"test",
-		time.Now().UnixNano(),
+	event := ob.Event{
+		ID:        "test",
+		Publisher: "test",
+		EventName: "testEvent",
+		Timestamp: time.Now().UnixNano(),
+		Payload:   []byte("test"),
 	}
 
 	emitErr := eventEmitter.Emit(event)
@@ -83,13 +86,15 @@ func TestListen(t *testing.T) {
 		t.Error(err)
 	}
 
-	event := &Event{
-		"test",
-		"test",
-		time.Now().UnixNano(),
+	event := ob.Event{
+		ID:        "test",
+		Publisher: "test",
+		EventName: "testEvent",
+		Timestamp: time.Now().UnixNano(),
+		Payload:   []byte("test"),
 	}
 
-	eventChan, _, listenErr := eventListener.Listen(event.GetID())
+	eventChan, _, listenErr := eventListener.Listen(event.EventName)
 	if listenErr != nil {
 		fmt.Println("Listen function  failed")
 		t.Error(err)

@@ -1,5 +1,7 @@
 package queue
 
+import ob "github.com/dueruen/go-outbox"
+
 type EventEmitter interface {
-	Emit(e Event) error
+	Emit(e ob.Event) error
 }

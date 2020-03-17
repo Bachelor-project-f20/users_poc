@@ -3,6 +3,7 @@ package nats
 import (
 	"log"
 
+	ob "github.com/dueruen/go-outbox"
 	"github.com/grammeaway/users_poc/users/lib/queue"
 	"github.com/nats-io/go-nats"
 )
@@ -23,8 +24,8 @@ func NewNatsEventEmitter(connection *nats.EncodedConn, exchange, queue string) (
 	return &emitter, nil
 }
 
-func (n *natsEventEmitter) Emit(e queue.Event) error {
-	err := n.connection.Publish(e.GetID(), e)
+func (n *natsEventEmitter) Emit(e ob.Event) error {
+	err := n.connection.Publish(e.EventName, e)
 	if err != nil {
 		log.Fatal(err)
 		return err
