@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	CreateUser(user *pb.User) error
+	CreateUser(requestEvent ob.Event) error
 }
 
 type service struct {
@@ -20,8 +20,9 @@ func NewService(outbox ob.Outbox) Service {
 	return &service{outbox}
 }
 
-func (srv *service) CreateUser(user *pb.User) error {
-	event := ob.Event{
+func (srv *service) CreateUser(requestEvent ob.Event) error {
+
+	creationEvent := ob.Event{
 		ID:        "test",
 		Publisher: "test",
 		EventName: "user_created",
@@ -29,7 +30,13 @@ func (srv *service) CreateUser(user *pb.User) error {
 		Payload:   []byte("test"),
 	}
 
-	err := srv.ob.Insert(user, event)
+	user := &pb.User{
+		ID:       "test",
+		OfficeID: "test",
+		Name:     "test",
+	}
+
+	err := srv.ob.Insert(user, creationEvent)
 
 	if err != nil {
 		fmt.Println("Error during creation of user. Err: ", err)

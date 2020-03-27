@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	UpdateUser(user *pb.User) error
+	UpdateUser(requestEvent ob.Event) error
 }
 
 type service struct {
@@ -20,9 +20,9 @@ func NewService(outbox ob.Outbox) Service {
 	return &service{outbox}
 }
 
-func (srv *service) UpdateUser(user *pb.User) error {
+func (srv *service) UpdateUser(requestEvent ob.Event) error {
 
-	event := ob.Event{
+	updateEvent := ob.Event{
 		ID:        "test",
 		Publisher: "test",
 		EventName: "user_updated",
@@ -30,7 +30,13 @@ func (srv *service) UpdateUser(user *pb.User) error {
 		Payload:   []byte("test"),
 	}
 
-	err := srv.ob.Update(user, event)
+	userID := string(updateEvent.Payload)
+
+	userToBeUpdated := &pb.User{
+		ID: userID,
+	}
+
+	err := srv.ob.Update(userToBeUpdated, updateEvent)
 
 	if err != nil {
 		fmt.Println("Error during update of user. Err: ", err)

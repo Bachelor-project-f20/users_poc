@@ -9,7 +9,7 @@ import (
 )
 
 type Service interface {
-	DeleteUser(user *pb.User) error
+	DeleteUser(requestEvent ob.Event) error
 }
 
 type service struct {
@@ -20,9 +20,9 @@ func NewService(outbox ob.Outbox) Service {
 	return &service{outbox}
 }
 
-func (srv *service) DeleteUser(user *pb.User) error {
+func (srv *service) DeleteUser(requestEvent ob.Event) error {
 
-	event := ob.Event{
+	deletionEvent := ob.Event{
 		ID:        "test",
 		Publisher: "test",
 		EventName: "user_deleted",
@@ -30,7 +30,13 @@ func (srv *service) DeleteUser(user *pb.User) error {
 		Payload:   []byte("test"),
 	}
 
-	err := srv.ob.Delete(user, event)
+	userID := string(deletionEvent.Payload)
+
+	userToDelete := &pb.User{
+		ID: userID,
+	}
+
+	err := srv.ob.Delete(userToDelete, deletionEvent)
 
 	if err != nil {
 		fmt.Println("Error during deletion of user. Err: ", err)
