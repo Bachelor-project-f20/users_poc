@@ -69,7 +69,14 @@ func Run() {
 	updatingService := updating.NewService(outbox)
 	deletingService := deleting.NewService(outbox)
 
-	handler := handler.NewEventHandler(creatingService, updatingService, deletingService)
+	eventHandler := handler.NewEventHandler(creatingService, updatingService, deletingService)
+
+	event := <-eventChan
+
+	//How to make a piece of code get executed whenever something is dumped into the channel?
+	for {
+		eventHandler.HandleEvent(event) //currently not working due to eventToGo.Event vs go-outbox.Event difference
+	}
 
 }
 
