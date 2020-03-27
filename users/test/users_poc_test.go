@@ -32,6 +32,11 @@ func TestOutboxSetup(t *testing.T) {
 
 	eventEmitter, err := stan.NewNatsEventEmitter(encodedConn, exchange, queueType)
 
+	if err != nil {
+		fmt.Printf("Creation of event emitter failed, error: %v \n", err)
+		t.Error(err)
+	}
+
 	_, obErr := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter)
 
 	if obErr != nil {

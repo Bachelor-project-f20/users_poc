@@ -75,7 +75,7 @@ func Run() {
 
 	//How to make a piece of code get executed whenever something is dumped into the channel?
 	for {
-		eventHandler.HandleEvent(event) //currently not working due to eventToGo.Event vs go-outbox.Event difference
+		eventHandler.HandleEvent(event)
 	}
 
 }
