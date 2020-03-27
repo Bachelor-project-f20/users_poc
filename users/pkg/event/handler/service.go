@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 
-	ob "github.com/dueruen/go-outbox"
+	ob "github.com/Bachelor-project-f20/go-outbox"
 	"github.com/grammeaway/users_poc/users/pkg/creating"
 	"github.com/grammeaway/users_poc/users/pkg/deleting"
 	"github.com/grammeaway/users_poc/users/pkg/updating"

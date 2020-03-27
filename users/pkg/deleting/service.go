@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	ob "github.com/dueruen/go-outbox"
+	ob "github.com/Bachelor-project-f20/go-outbox"
 	pb "github.com/grammeaway/users_poc/users/models/proto/gen"
 )
 

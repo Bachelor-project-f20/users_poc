@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/grammeaway/users_poc/users/lib/queue/configure"
-	stan "github.com/grammeaway/users_poc/users/lib/queue/nats"
+	stan "github.com/Bachelor-project-f20/eventToGo/nats"
+	"github.com/grammeaway/users_poc/users/lib/configure"
 	"github.com/grammeaway/users_poc/users/pkg/creating"
 	"github.com/grammeaway/users_poc/users/pkg/deleting"
 	"github.com/grammeaway/users_poc/users/pkg/event/handler"
 	"github.com/grammeaway/users_poc/users/pkg/updating"
 	"github.com/nats-io/go-nats"
 
-	"github.com/dueruen/go-outbox"
+	"github.com/Bachelor-project-f20/go-outbox"
 )
 
 type creatingService = creating.Service
@@ -70,13 +70,6 @@ func Run() {
 	deletingService := deleting.NewService(outbox)
 
 	handler := handler.NewEventHandler(creatingService, updatingService, deletingService)
-
-	go func() {
-		for {
-			event := <-eventChan
-			handler.HandleEvent(event)
-		}
-	}	
 
 }
 
