@@ -15,3 +15,18 @@ message UserCreated {
     User User = 1;
 }
 
+message UserUpdated {
+    User User = 1;
+}
+
+message UpdateUser { 
+    User User = 1;
+}
+
+message DeleteUser {
+    User User = 1;
+}
+
+message UserDeleted {
+    User User = 1;
+}

@@ -5,19 +5,15 @@ import (
 	"log"
 
 	stan "github.com/Bachelor-project-f20/eventToGo/nats"
-	"github.com/grammeaway/users_poc/users/lib/configure"
-	"github.com/grammeaway/users_poc/users/pkg/creating"
-	"github.com/grammeaway/users_poc/users/pkg/deleting"
-	"github.com/grammeaway/users_poc/users/pkg/event/handler"
-	"github.com/grammeaway/users_poc/users/pkg/updating"
+	"github.com/grammeaway/users_poc/lib/configure"
+	"github.com/grammeaway/users_poc/pkg/creating"
+	"github.com/grammeaway/users_poc/pkg/deleting"
+	"github.com/grammeaway/users_poc/pkg/event/handler"
+	"github.com/grammeaway/users_poc/pkg/updating"
 	"github.com/nats-io/go-nats"
 
 	"github.com/Bachelor-project-f20/go-outbox"
 )
-
-type creatingService = creating.Service
-type updatingService = updating.Service
-type deletingService = deleting.Service
 
 var configFile string = "configPath"
 

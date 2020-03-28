@@ -4,9 +4,9 @@ import (
 	"errors"
 
 	e "github.com/Bachelor-project-f20/eventToGo"
-	"github.com/grammeaway/users_poc/users/pkg/creating"
-	"github.com/grammeaway/users_poc/users/pkg/deleting"
-	"github.com/grammeaway/users_poc/users/pkg/updating"
+	"github.com/grammeaway/users_poc/pkg/creating"
+	"github.com/grammeaway/users_poc/pkg/deleting"
+	"github.com/grammeaway/users_poc/pkg/updating"
 )
 
 type Service interface {

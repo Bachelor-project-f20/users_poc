@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	etg "github.com/Bachelor-project-f20/eventToGo"
 	ob "github.com/Bachelor-project-f20/go-outbox"
-	pb "github.com/grammeaway/users_poc/users/models/proto/gen"
+	"github.com/golang/protobuf/proto"
+	pb "github.com/grammeaway/users_poc/models/proto/gen"
 )
 
 type Service interface {
-	UpdateUser(requestEvent ob.Event) error
+	UpdateUser(requestEvent etg.Event) error
 }
 
 type service struct {
@@ -20,20 +22,37 @@ func NewService(outbox ob.Outbox) Service {
 	return &service{outbox}
 }
 
-func (srv *service) UpdateUser(requestEvent ob.Event) error {
+func (srv *service) UpdateUser(requestEvent etg.Event) error {
 
-	updateEvent := ob.Event{
-		ID:        "test",
-		Publisher: "test",
-		EventName: "user_updated",
-		Timestamp: time.Now().UnixNano(),
-		Payload:   []byte("test"),
+	payload := &pb.UpdateUser{}
+	err := proto.Unmarshal(requestEvent.GetPayload(), payload)
+
+	if err != nil {
+		return err
 	}
 
-	userID := string(updateEvent.Payload)
+	user := &pb.User{
+		ID:       payload.User.ID,
+		OfficeID: payload.User.OfficeID,
+		Name:     payload.User.Name,
+	}
 
-	userToBeUpdated := &pb.User{
-		ID: userID,
+	userUpdatedEvent := &pb.UserUpdated{
+		User: user,
+	}
+
+	marshalEvent, err := proto.Marshal(userUpdatedEvent)
+
+	if err != nil {
+		return err
+	}
+
+	updateEvent := etg.Event{
+		ID:        "test",
+		Publisher: "users",
+		EventName: "user_updated",
+		TimeStamp: time.Now().UnixNano(),
+		Payload:   marshalEvent,
 	}
 
 	err := srv.ob.Update(userToBeUpdated, updateEvent)

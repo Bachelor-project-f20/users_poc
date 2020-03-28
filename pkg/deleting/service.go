@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	etg "github.com/Bachelor-project-f20/eventToGo"
 	ob "github.com/Bachelor-project-f20/go-outbox"
-	pb "github.com/grammeaway/users_poc/users/models/proto/gen"
+	"github.com/golang/protobuf/proto"
+	pb "github.com/grammeaway/users_poc/models/proto/gen"
 )
 
 type Service interface {
-	DeleteUser(requestEvent ob.Event) error
+	DeleteUser(requestEvent etg.Event) error
 }
 
 type service struct {
@@ -20,20 +22,37 @@ func NewService(outbox ob.Outbox) Service {
 	return &service{outbox}
 }
 
-func (srv *service) DeleteUser(requestEvent ob.Event) error {
+func (srv *service) DeleteUser(requestEvent etg.Event) error {
 
-	deletionEvent := ob.Event{
-		ID:        "test",
-		Publisher: "test",
-		EventName: "user_deleted",
-		Timestamp: time.Now().UnixNano(),
-		Payload:   []byte("test"),
+	payload := &pb.DeleteUser{}
+
+	err := proto.Unmarshal(requesEvent.GetPayload())
+
+	if err != nil {
+		return err
 	}
 
-	userID := string(deletionEvent.Payload)
+	user := &pb.User{
+		ID:       "test",
+		OfficeID: payload.User.OfficeID,
+		Name:     payload.User.Name,
+	}
 
-	userToDelete := &pb.User{
-		ID: userID,
+	userDeletedEvent := &pb.UserDeleted{
+		User: user,
+	}
+	marshalEvent, err := proto.Marshal(userDeletedEvent)
+
+	if err != nil {
+		return err
+	}
+
+	deletionEvent := etg.Event{
+		ID:        "test",
+		Publisher: "users",
+		EventName: "user_deleted",
+		Timestamp: time.Now().UnixNano(),
+		Payload:   marshalEvent,
 	}
 
 	err := srv.ob.Delete(userToDelete, deletionEvent)
