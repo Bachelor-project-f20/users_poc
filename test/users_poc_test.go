@@ -10,6 +10,7 @@ import (
 	"github.com/Bachelor-project-f20/go-outbox"
 	"github.com/golang/protobuf/proto"
 	"github.com/grammeaway/users_poc/lib/configure"
+	pb "github.com/grammeaway/users_poc/models/proto/gen"
 	"github.com/grammeaway/users_poc/pkg/creating"
 	"github.com/grammeaway/users_poc/pkg/deleting"
 	"github.com/grammeaway/users_poc/pkg/event/handler"
@@ -17,8 +18,8 @@ import (
 	"github.com/nats-io/go-nats"
 )
 
-var eventEmitter stan.eventEmitter
-var eventListener stan.eventListener
+var eventEmitter etg.EventEmitter
+var eventListener etg.EventListener
 var eventHandler handler.Service
 var eventChan <-chan etg.Event
 
@@ -49,7 +50,7 @@ func TestServiceSetup(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, obErr := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter)
+	outbox, obErr := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter, pb.User{})
 
 	if obErr != nil {
 		fmt.Printf("Error creating Outbox: %v \n", err)
@@ -98,12 +99,15 @@ func TestCreateRequestHandling(t *testing.T) {
 		ID:        "test",
 		Publisher: "users_test",
 		EventName: "creation_request",
-		TimeStamp: time.Now().UnixNano(),
+		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalUser,
 	}
 
 	eventEmitter.Emit(creationRequest)
-	//How to check if this actually works?
+	//How to programmatically check if this actually works?
+
+	event := <-eventChan
+	eventHandler.HandleEvent(event)
 
 }
 
@@ -125,12 +129,15 @@ func TestUpdateRequestHandling(t *testing.T) {
 		ID:        "test",
 		Publisher: "users_test",
 		EventName: "updating_request",
-		TimeStamp: time.Now().UnixNano(),
+		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalUser,
 	}
 
 	eventEmitter.Emit(updateRequest)
-	//How to check if this actually works?
+	//How to programmatically check if this actually works?
+
+	event := <-eventChan
+	eventHandler.HandleEvent(event)
 }
 
 func TestDeleteRequestHandling(t *testing.T) {
@@ -151,13 +158,15 @@ func TestDeleteRequestHandling(t *testing.T) {
 		ID:        "test",
 		Publisher: "users_test",
 		EventName: "deletion_request",
-		TimeStamp: time.Now().UnixNano(),
+		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalUser,
 	}
 
 	eventEmitter.Emit(deletionRequest)
+	//How to programmatically check if this actually works?
 
-	//How to check if this actually works?
+	event := <-eventChan
+	eventHandler.HandleEvent(event)
 }
 
 func setupNatsConn() (*nats.EncodedConn, error) {

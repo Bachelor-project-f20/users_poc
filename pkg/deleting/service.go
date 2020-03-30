@@ -2,6 +2,7 @@ package deleting
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
@@ -24,19 +25,20 @@ func NewService(outbox ob.Outbox) Service {
 
 func (srv *service) DeleteUser(requestEvent etg.Event) error {
 
-	payload := &pb.DeleteUser{}
+	user := &pb.User{}
 
-	err := proto.Unmarshal(requesEvent.GetPayload())
+	err := proto.Unmarshal(requestEvent.Payload, user)
 
 	if err != nil {
+		log.Fatalf("Error with proto: %v \n", err)
 		return err
 	}
 
-	user := &pb.User{
-		ID:       "test",
-		OfficeID: payload.User.OfficeID,
-		Name:     payload.User.Name,
-	}
+	// user := &pb.User{
+	// 	ID:       "test",
+	// 	OfficeID: payload.User.OfficeID,
+	// 	Name:     payload.User.Name,
+	// }
 
 	userDeletedEvent := &pb.UserDeleted{
 		User: user,
@@ -44,6 +46,7 @@ func (srv *service) DeleteUser(requestEvent etg.Event) error {
 	marshalEvent, err := proto.Marshal(userDeletedEvent)
 
 	if err != nil {
+		log.Fatalf("Error with proto: %v \n", err)
 		return err
 	}
 
@@ -55,7 +58,7 @@ func (srv *service) DeleteUser(requestEvent etg.Event) error {
 		Payload:   marshalEvent,
 	}
 
-	err := srv.ob.Delete(userToDelete, deletionEvent)
+	err = srv.ob.Delete(user, deletionEvent)
 
 	if err != nil {
 		fmt.Println("Error during deletion of user. Err: ", err)

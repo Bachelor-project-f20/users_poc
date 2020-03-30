@@ -3,14 +3,14 @@ package handler
 import (
 	"errors"
 
-	e "github.com/Bachelor-project-f20/eventToGo"
+	etg "github.com/Bachelor-project-f20/eventToGo"
 	"github.com/grammeaway/users_poc/pkg/creating"
 	"github.com/grammeaway/users_poc/pkg/deleting"
 	"github.com/grammeaway/users_poc/pkg/updating"
 )
 
 type Service interface {
-	HandleEvent(event e.Event) error
+	HandleEvent(event etg.Event) error
 }
 
 type service struct {
@@ -23,18 +23,18 @@ func NewEventHandler(creatingService creating.Service, updatingService updating.
 	return &service{creatingService, updatingService, deletingService}
 }
 
-func (srv *service) HandleEvent(event e.Event) error {
-	if event.GetEventName() == "creation_request" {
+func (srv *service) HandleEvent(event etg.Event) error {
+	if event.EventName == "creation_request" {
 		err := srv.creatingService.CreateUser(event)
 		return err
 	}
 
-	if event.GetEventName() == "updating_request" {
+	if event.EventName == "updating_request" {
 		err := srv.updatingService.UpdateUser(event)
 		return err
 	}
 
-	if event.GetEventName() == "deletion_request" {
+	if event.EventName == "deletion_request" {
 		err := srv.deletingService.DeleteUser(event)
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 
 	stan "github.com/Bachelor-project-f20/eventToGo/nats"
 	"github.com/grammeaway/users_poc/lib/configure"
+	pb "github.com/grammeaway/users_poc/models/proto/gen"
 	"github.com/grammeaway/users_poc/pkg/creating"
 	"github.com/grammeaway/users_poc/pkg/deleting"
 	"github.com/grammeaway/users_poc/pkg/event/handler"
@@ -41,7 +42,7 @@ func Run() {
 		log.Fatalf("Error creating Emitter: %v \n", err)
 	}
 
-	outbox, err := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter)
+	outbox, err := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter, pb.User{})
 
 	if err != nil {
 		log.Fatalf("Error creating Outbox: %v \n", err)
@@ -67,10 +68,9 @@ func Run() {
 
 	eventHandler := handler.NewEventHandler(creatingService, updatingService, deletingService)
 
-	event := <-eventChan
-
 	//How to make a piece of code get executed whenever something is dumped into the channel?
 	for {
+		event := <-eventChan
 		eventHandler.HandleEvent(event)
 	}
 

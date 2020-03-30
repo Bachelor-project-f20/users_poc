@@ -2,6 +2,7 @@ package creating
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
@@ -24,23 +25,26 @@ func NewService(outbox ob.Outbox) Service {
 
 func (srv *service) CreateUser(requestEvent etg.Event) error {
 
-	payload := &pb.CreateUser{}
-	err := proto.Unmarshal(requestEvent.GetPayload(), payload)
+	user := &pb.User{}
+	err := proto.Unmarshal(requestEvent.Payload, user)
+
 	if err != nil {
+		log.Fatalf("Error with proto: %v \n", err)
 		return err
 	}
 
-	user := &pb.User{
-		ID:       "test", //TODO, make ID
-		OfficeID: payload.User.OfficeID,
-		Name:     payload.User.Name,
-	}
+	// user := &pb.User{
+	// 	ID:       "test", //TODO, make ID
+	// 	OfficeID: payload.User.OfficeID,
+	// 	Name:     payload.User.Name,
+	// }
 
 	userCreatedEvent := &pb.UserCreated{
 		User: user,
 	}
 	marshalEvent, err := proto.Marshal(userCreatedEvent)
 	if err != nil {
+		log.Fatalf("Error with proto: %v \n", err)
 		return err
 	}
 
@@ -48,7 +52,7 @@ func (srv *service) CreateUser(requestEvent etg.Event) error {
 		ID:        "test", //TODO, make ID
 		Publisher: "users",
 		EventName: "user_created",
-		TimeStamp: time.Now().UnixNano(),
+		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalEvent,
 	}
 

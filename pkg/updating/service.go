@@ -2,6 +2,7 @@ package updating
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
@@ -24,18 +25,19 @@ func NewService(outbox ob.Outbox) Service {
 
 func (srv *service) UpdateUser(requestEvent etg.Event) error {
 
-	payload := &pb.UpdateUser{}
-	err := proto.Unmarshal(requestEvent.GetPayload(), payload)
+	user := &pb.User{}
+	err := proto.Unmarshal(requestEvent.Payload, user)
 
 	if err != nil {
+		log.Fatalf("Error with proto: %v \n", err)
 		return err
 	}
 
-	user := &pb.User{
-		ID:       payload.User.ID,
-		OfficeID: payload.User.OfficeID,
-		Name:     payload.User.Name,
-	}
+	// user := &pb.User{
+	// 	ID:       payload.User.ID,
+	// 	OfficeID: payload.User.OfficeID,
+	// 	Name:     payload.User.Name,
+	// }
 
 	userUpdatedEvent := &pb.UserUpdated{
 		User: user,
@@ -44,6 +46,7 @@ func (srv *service) UpdateUser(requestEvent etg.Event) error {
 	marshalEvent, err := proto.Marshal(userUpdatedEvent)
 
 	if err != nil {
+		log.Fatalf("Error with proto: %v \n", err)
 		return err
 	}
 
@@ -51,11 +54,11 @@ func (srv *service) UpdateUser(requestEvent etg.Event) error {
 		ID:        "test",
 		Publisher: "users",
 		EventName: "user_updated",
-		TimeStamp: time.Now().UnixNano(),
+		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalEvent,
 	}
 
-	err := srv.ob.Update(userToBeUpdated, updateEvent)
+	err = srv.ob.Update(user, updateEvent)
 
 	if err != nil {
 		fmt.Println("Error during update of user. Err: ", err)
