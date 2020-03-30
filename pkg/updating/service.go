@@ -7,6 +7,7 @@ import (
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
 	ob "github.com/Bachelor-project-f20/go-outbox"
+	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/proto"
 	pb "github.com/grammeaway/users_poc/models/proto/gen"
 )
@@ -33,12 +34,6 @@ func (srv *service) UpdateUser(requestEvent etg.Event) error {
 		return err
 	}
 
-	// user := &pb.User{
-	// 	ID:       payload.User.ID,
-	// 	OfficeID: payload.User.OfficeID,
-	// 	Name:     payload.User.Name,
-	// }
-
 	userUpdatedEvent := &pb.UserUpdated{
 		User: user,
 	}
@@ -50,8 +45,11 @@ func (srv *service) UpdateUser(requestEvent etg.Event) error {
 		return err
 	}
 
+	id, _ := uuid.NewV4()
+	idAsString := id.String()
+
 	updateEvent := etg.Event{
-		ID:        "test",
+		ID:        idAsString,
 		Publisher: "users",
 		EventName: "user_updated",
 		Timestamp: time.Now().UnixNano(),

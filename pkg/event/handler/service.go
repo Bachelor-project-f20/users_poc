@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
 	"github.com/grammeaway/users_poc/pkg/creating"
@@ -24,21 +25,26 @@ func NewEventHandler(creatingService creating.Service, updatingService updating.
 }
 
 func (srv *service) HandleEvent(event etg.Event) error {
-	if event.EventName == "creation_request" {
-		err := srv.creatingService.CreateUser(event)
-		return err
-	}
+	go func() error {
+		for {
+			if event.EventName == "creation_request" {
+				err := srv.creatingService.CreateUser(event)
+				return err
+			}
 
-	if event.EventName == "updating_request" {
-		err := srv.updatingService.UpdateUser(event)
-		return err
-	}
+			if event.EventName == "updating_request" {
+				err := srv.updatingService.UpdateUser(event)
+				return err
+			}
 
-	if event.EventName == "deletion_request" {
-		err := srv.deletingService.DeleteUser(event)
-		return err
-	}
+			if event.EventName == "deletion_request" {
+				fmt.Println("Things are being deleted")
+				err := srv.deletingService.DeleteUser(event)
+				return err
+			}
 
-	return errors.New("Event not of type handled by this service")
-
+			return errors.New("Event not of type handled by this service")
+		}
+	}()
+	return nil
 }

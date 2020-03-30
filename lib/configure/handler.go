@@ -13,6 +13,8 @@ var (
 	DBConnectionDefault            = "root:root@/root?charset=utf8&parseTime=True&loc=Local"
 	MessageBrokerTypeDefault       = "nats"
 	MessageBrokerDefaultConnection = "localhost:4222"
+	ExchangeDefault                = "user"
+	QueueTypeDefault               = "queue"
 )
 
 type ServiceConfig struct {
@@ -20,6 +22,8 @@ type ServiceConfig struct {
 	DatabaseConnection      string
 	MessageBrokerType       string
 	MessageBrokerConnection string
+	Exchange                string
+	QueueType               string
 }
 
 func ExtractConfiguration(filename string) (ServiceConfig, error) {
@@ -28,6 +32,8 @@ func ExtractConfiguration(filename string) (ServiceConfig, error) {
 		DBConnectionDefault,
 		MessageBrokerTypeDefault,
 		MessageBrokerDefaultConnection,
+		ExchangeDefault,
+		QueueTypeDefault,
 	}
 	config.extractFromFile(filename)
 	config.extractFromEnv()

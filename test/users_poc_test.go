@@ -1,7 +1,9 @@
 package test
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -40,10 +42,7 @@ func TestServiceSetup(t *testing.T) {
 		t.Error(err)
 	}
 
-	exchange := "test"
-	queueType := "queue"
-
-	eventEmitter, err = stan.NewNatsEventEmitter(encodedConn, exchange, queueType)
+	eventEmitter, err = stan.NewNatsEventEmitter(encodedConn, config.Exchange, config.QueueType)
 
 	if err != nil {
 		fmt.Printf("Creation of event emitter failed, error: %v \n", err)
@@ -57,7 +56,7 @@ func TestServiceSetup(t *testing.T) {
 		t.Error(err)
 	}
 
-	eventListener, err = stan.NewNatsEventListener(encodedConn, exchange, queueType)
+	eventListener, err = stan.NewNatsEventListener(encodedConn, config.Exchange, config.QueueType)
 
 	if err != nil {
 		fmt.Printf("Creation of Listener  failed, error: %v", err)
@@ -83,7 +82,7 @@ func TestServiceSetup(t *testing.T) {
 func TestCreateRequestHandling(t *testing.T) {
 
 	user := &pb.User{
-		ID:       "test", //TODO, make ID
+		ID:       "test",
 		OfficeID: "test",
 		Name:     "creation_test_user",
 	}
@@ -106,14 +105,24 @@ func TestCreateRequestHandling(t *testing.T) {
 	eventEmitter.Emit(creationRequest)
 	//How to programmatically check if this actually works?
 
-	event := <-eventChan
-	eventHandler.HandleEvent(event)
+	for {
+		time.Sleep(2 * time.Second)
+		e, ok := <-eventChan
+
+		if !ok {
+			log.Println("Handle, broken loop. BREAKING")
+			t.Error(errors.New("Loop broken"))
+		}
+
+		eventHandler.HandleEvent(e)
+		break
+	}
 
 }
 
 func TestUpdateRequestHandling(t *testing.T) {
 	user := &pb.User{
-		ID:       "test", //TODO, make ID
+		ID:       "test",
 		OfficeID: "new_office_id",
 		Name:     "creation_test_user",
 	}
@@ -136,8 +145,19 @@ func TestUpdateRequestHandling(t *testing.T) {
 	eventEmitter.Emit(updateRequest)
 	//How to programmatically check if this actually works?
 
-	event := <-eventChan
-	eventHandler.HandleEvent(event)
+	//How to make a piece of code get executed whenever something is dumped into the channel?
+	for {
+		time.Sleep(2 * time.Second)
+		e, ok := <-eventChan
+
+		if !ok {
+			log.Println("Handle, broken loop. BREAKING")
+			t.Error(errors.New("Loop broken"))
+		}
+
+		eventHandler.HandleEvent(e)
+		break
+	}
 }
 
 func TestDeleteRequestHandling(t *testing.T) {
@@ -165,8 +185,19 @@ func TestDeleteRequestHandling(t *testing.T) {
 	eventEmitter.Emit(deletionRequest)
 	//How to programmatically check if this actually works?
 
-	event := <-eventChan
-	eventHandler.HandleEvent(event)
+	for {
+		time.Sleep(2 * time.Second)
+		e, ok := <-eventChan
+
+		if !ok {
+			log.Println("Handle, broken loop. BREAKING")
+			t.Error(errors.New("Loop broken"))
+		}
+
+		eventHandler.HandleEvent(e)
+		time.Sleep(3 * time.Second) //apparently deletion takes a little extra wait time?
+		break
+	}
 }
 
 func setupNatsConn() (*nats.EncodedConn, error) {

@@ -7,6 +7,7 @@ import (
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
 	ob "github.com/Bachelor-project-f20/go-outbox"
+	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/proto"
 	pb "github.com/grammeaway/users_poc/models/proto/gen"
 )
@@ -33,12 +34,6 @@ func (srv *service) CreateUser(requestEvent etg.Event) error {
 		return err
 	}
 
-	// user := &pb.User{
-	// 	ID:       "test", //TODO, make ID
-	// 	OfficeID: payload.User.OfficeID,
-	// 	Name:     payload.User.Name,
-	// }
-
 	userCreatedEvent := &pb.UserCreated{
 		User: user,
 	}
@@ -48,8 +43,11 @@ func (srv *service) CreateUser(requestEvent etg.Event) error {
 		return err
 	}
 
+	id, _ := uuid.NewV4()
+	idAsString := id.String()
+
 	creationEvent := etg.Event{
-		ID:        "test", //TODO, make ID
+		ID:        idAsString,
 		Publisher: "users",
 		EventName: "user_created",
 		Timestamp: time.Now().UnixNano(),

@@ -33,10 +33,7 @@ func Run() {
 		log.Fatalf("Error connecting to Nats: %v \n", err)
 	}
 
-	exchange := "test"
-	queueType := "queue"
-
-	eventEmitter, err := stan.NewNatsEventEmitter(encodedConn, exchange, queueType)
+	eventEmitter, err := stan.NewNatsEventEmitter(encodedConn, config.Exchange, config.QueueType)
 
 	if err != nil {
 		log.Fatalf("Error creating Emitter: %v \n", err)
@@ -48,7 +45,7 @@ func Run() {
 		log.Fatalf("Error creating Outbox: %v \n", err)
 	}
 
-	eventListener, err := stan.NewNatsEventListener(encodedConn, exchange, queueType)
+	eventListener, err := stan.NewNatsEventListener(encodedConn, config.Exchange, config.QueueType)
 
 	if err != nil {
 		log.Fatalf("Creation of Listener  failed, error: %v", err)
@@ -70,10 +67,14 @@ func Run() {
 
 	//How to make a piece of code get executed whenever something is dumped into the channel?
 	for {
-		event := <-eventChan
-		eventHandler.HandleEvent(event)
-	}
+		e, ok := <-eventChan
 
+		if !ok {
+			log.Println("Handle, broken loop. BREAKING")
+		}
+
+		eventHandler.HandleEvent(e)
+	}
 }
 
 func setupNatsConn() (*nats.EncodedConn, error) {
