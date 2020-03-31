@@ -30,7 +30,6 @@ func (srv *service) DeleteUser(requestEvent etg.Event) error {
 
 	err := proto.Unmarshal(requestEvent.Payload, user)
 
-	fmt.Println("Check 1")
 	if err != nil {
 		log.Fatalf("Error with proto: %v \n", err)
 		return err
@@ -40,8 +39,6 @@ func (srv *service) DeleteUser(requestEvent etg.Event) error {
 		User: user,
 	}
 	marshalEvent, err := proto.Marshal(userDeletedEvent)
-
-	fmt.Println("Check 2")
 
 	if err != nil {
 		log.Fatalf("Error with proto: %v \n", err)
@@ -60,7 +57,6 @@ func (srv *service) DeleteUser(requestEvent etg.Event) error {
 	}
 
 	err = srv.ob.Delete(user, deletionEvent)
-	fmt.Println("Check 3")
 
 	if err != nil {
 		fmt.Println("Error during deletion of user. Err: ", err)

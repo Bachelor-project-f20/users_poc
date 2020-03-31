@@ -78,7 +78,6 @@ func TestServiceSetup(t *testing.T) {
 }
 
 func test(t *testing.T) {
-	fmt.Println("IN TEST SETUP!!!!")
 	testingChan := make(chan eventHandler.TestObject)
 	defer close(testingChan)
 	go func() {
@@ -89,16 +88,12 @@ func test(t *testing.T) {
 			updatingService,
 			deletingService,
 		)
-		fmt.Println("IN TEST SETUP!!!!")
 	}()
-	fmt.Println("HERE")
 	testResult := <-testingChan
 	if !testResult.Ok {
 		fmt.Println("ERROR")
 		t.Error(testResult.Err)
 	}
-	fmt.Println("OK")
-
 	testingChan <- eventHandler.TestObject{}
 }
 
