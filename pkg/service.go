@@ -9,7 +9,7 @@ import (
 	pb "github.com/grammeaway/users_poc/models/proto/gen"
 	"github.com/grammeaway/users_poc/pkg/creating"
 	"github.com/grammeaway/users_poc/pkg/deleting"
-	"github.com/grammeaway/users_poc/pkg/event/handler"
+	handler "github.com/grammeaway/users_poc/pkg/event"
 	"github.com/grammeaway/users_poc/pkg/updating"
 	"github.com/nats-io/go-nats"
 
@@ -63,18 +63,11 @@ func Run() {
 	updatingService := updating.NewService(outbox)
 	deletingService := deleting.NewService(outbox)
 
-	eventHandler := handler.NewEventHandler(creatingService, updatingService, deletingService)
-
-	//How to make a piece of code get executed whenever something is dumped into the channel?
-	for {
-		e, ok := <-eventChan
-
-		if !ok {
-			log.Println("Handle, broken loop. BREAKING")
-		}
-
-		eventHandler.HandleEvent(e)
-	}
+	handler.StartEventHandler(
+		eventChan,
+		creatingService,
+		updatingService,
+		deletingService)
 }
 
 func setupNatsConn() (*nats.EncodedConn, error) {
