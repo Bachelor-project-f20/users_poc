@@ -9,12 +9,12 @@ import (
 	stan "github.com/Bachelor-project-f20/eventToGo/nats"
 	"github.com/Bachelor-project-f20/go-outbox"
 	"github.com/golang/protobuf/proto"
-	"github.com/grammeaway/users_poc/lib/configure"
-	pb "github.com/grammeaway/users_poc/models/proto/gen"
-	"github.com/grammeaway/users_poc/pkg/creating"
-	"github.com/grammeaway/users_poc/pkg/deleting"
-	eventHandler "github.com/grammeaway/users_poc/pkg/event"
-	"github.com/grammeaway/users_poc/pkg/updating"
+	"github.com/Bachelor-project-f20/users_poc/lib/configure"
+	pb "github.com/Bachelor-project-f20/users_poc/models/proto/gen"
+	"github.com/Bachelor-project-f20/users_poc/pkg/creating"
+	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
+	eventHandler "github.com/Bachelor-project-f20/users_poc/pkg/event"
+	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
 	"github.com/nats-io/go-nats"
 )
 
