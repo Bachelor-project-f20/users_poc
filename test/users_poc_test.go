@@ -1,9 +1,7 @@
 package test
 
 import (
-	"errors"
 	"fmt"
-	"log"
 	"testing"
 	"time"
 
@@ -15,15 +13,17 @@ import (
 	pb "github.com/grammeaway/users_poc/models/proto/gen"
 	"github.com/grammeaway/users_poc/pkg/creating"
 	"github.com/grammeaway/users_poc/pkg/deleting"
-	"github.com/grammeaway/users_poc/pkg/event/handler"
+	eventHandler "github.com/grammeaway/users_poc/pkg/event"
 	"github.com/grammeaway/users_poc/pkg/updating"
 	"github.com/nats-io/go-nats"
 )
 
 var eventEmitter etg.EventEmitter
 var eventListener etg.EventListener
-var eventHandler handler.Service
 var eventChan <-chan etg.Event
+var creatingService creating.Service
+var updatingService updating.Service
+var deletingService deleting.Service
 
 func TestServiceSetup(t *testing.T) {
 	configFile := "testConfig"
@@ -72,15 +72,38 @@ func TestServiceSetup(t *testing.T) {
 		t.Error(err)
 	}
 
-	creatingService := creating.NewService(outbox)
-	updatingService := updating.NewService(outbox)
-	deletingService := deleting.NewService(outbox)
+	creatingService = creating.NewService(outbox)
+	updatingService = updating.NewService(outbox)
+	deletingService = deleting.NewService(outbox)
+}
 
-	eventHandler = handler.NewEventHandler(creatingService, updatingService, deletingService)
+func test(t *testing.T) {
+	fmt.Println("IN TEST SETUP!!!!")
+	testingChan := make(chan eventHandler.TestObject)
+	defer close(testingChan)
+	go func() {
+		eventHandler.TestingStartEventHandler(
+			testingChan,
+			eventChan,
+			creatingService,
+			updatingService,
+			deletingService,
+		)
+		fmt.Println("IN TEST SETUP!!!!")
+	}()
+	fmt.Println("HERE")
+	testResult := <-testingChan
+	if !testResult.Ok {
+		fmt.Println("ERROR")
+		t.Error(testResult.Err)
+	}
+	fmt.Println("OK")
+
+	testingChan <- eventHandler.TestObject{}
 }
 
 func TestCreateRequestHandling(t *testing.T) {
-
+	fmt.Println("TestCreateRequestHandling")
 	user := &pb.User{
 		ID:       "test",
 		OfficeID: "test",
@@ -103,24 +126,11 @@ func TestCreateRequestHandling(t *testing.T) {
 	}
 
 	eventEmitter.Emit(creationRequest)
-	//How to programmatically check if this actually works?
-
-	for {
-		time.Sleep(2 * time.Second)
-		e, ok := <-eventChan
-
-		if !ok {
-			log.Println("Handle, broken loop. BREAKING")
-			t.Error(errors.New("Loop broken"))
-		}
-
-		eventHandler.HandleEvent(e)
-		break
-	}
-
+	test(t)
 }
 
 func TestUpdateRequestHandling(t *testing.T) {
+	fmt.Println("TestUpdateRequestHandling")
 	user := &pb.User{
 		ID:       "test",
 		OfficeID: "new_office_id",
@@ -143,26 +153,13 @@ func TestUpdateRequestHandling(t *testing.T) {
 	}
 
 	eventEmitter.Emit(updateRequest)
-	//How to programmatically check if this actually works?
-
-	//How to make a piece of code get executed whenever something is dumped into the channel?
-	for {
-		time.Sleep(2 * time.Second)
-		e, ok := <-eventChan
-
-		if !ok {
-			log.Println("Handle, broken loop. BREAKING")
-			t.Error(errors.New("Loop broken"))
-		}
-
-		eventHandler.HandleEvent(e)
-		break
-	}
+	test(t)
 }
 
 func TestDeleteRequestHandling(t *testing.T) {
+	fmt.Println("TestDeleteRequestHandling")
 	user := &pb.User{
-		ID:       "test", //TODO, make ID
+		ID:       "test",
 		OfficeID: "new_office_id",
 		Name:     "creation_test_user",
 	}
@@ -183,21 +180,7 @@ func TestDeleteRequestHandling(t *testing.T) {
 	}
 
 	eventEmitter.Emit(deletionRequest)
-	//How to programmatically check if this actually works?
-
-	for {
-		time.Sleep(2 * time.Second)
-		e, ok := <-eventChan
-
-		if !ok {
-			log.Println("Handle, broken loop. BREAKING")
-			t.Error(errors.New("Loop broken"))
-		}
-
-		eventHandler.HandleEvent(e)
-		time.Sleep(3 * time.Second) //apparently deletion takes a little extra wait time?
-		break
-	}
+	test(t)
 }
 
 func setupNatsConn() (*nats.EncodedConn, error) {
