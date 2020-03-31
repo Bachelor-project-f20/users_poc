@@ -1,9 +1,0 @@
-syntax = "proto3";
-package models;
-
-message BaseEvent { 
-    string ID = 1;
-    string Publisher = 2;
-    int64 Timestamp = 3;
-}
-
