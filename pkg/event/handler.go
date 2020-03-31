@@ -6,9 +6,9 @@ import (
 	"log"
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
-	"github.com/grammeaway/users_poc/pkg/creating"
-	"github.com/grammeaway/users_poc/pkg/deleting"
-	"github.com/grammeaway/users_poc/pkg/updating"
+	"github.com/Bachelor-project-f20/users_poc/pkg/creating"
+	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
+	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
 )
 
 type TestObject struct {

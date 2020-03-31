@@ -5,12 +5,12 @@ import (
 	"log"
 
 	stan "github.com/Bachelor-project-f20/eventToGo/nats"
-	"github.com/grammeaway/users_poc/lib/configure"
-	pb "github.com/grammeaway/users_poc/models/proto/gen"
-	"github.com/grammeaway/users_poc/pkg/creating"
-	"github.com/grammeaway/users_poc/pkg/deleting"
-	handler "github.com/grammeaway/users_poc/pkg/event"
-	"github.com/grammeaway/users_poc/pkg/updating"
+	"github.com/Bachelor-project-f20/users_poc/lib/configure"
+	pb "github.com/Bachelor-project-f20/users_poc/models/proto/gen"
+	"github.com/Bachelor-project-f20/users_poc/pkg/creating"
+	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
+	handler "github.com/Bachelor-project-f20/users_poc/pkg/event"
+	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
 	"github.com/nats-io/go-nats"
 
 	"github.com/Bachelor-project-f20/go-outbox"

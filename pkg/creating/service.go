@@ -9,7 +9,7 @@ import (
 	ob "github.com/Bachelor-project-f20/go-outbox"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/proto"
-	pb "github.com/grammeaway/users_poc/models/proto/gen"
+	pb "github.com/Bachelor-project-f20/users_poc/models/proto/gen"
 )
 
 type Service interface {

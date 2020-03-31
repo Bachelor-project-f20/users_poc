@@ -1,6 +1,6 @@
 package main
 
-import "github.com/grammeaway/users_poc/pkg"
+import "github.com/Bachelor-project-f20/users_poc/pkg"
 
 func main() {
 	pkg.Run()
