@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	etg "github.com/Bachelor-project-f20/eventToGo"
+	models "github.com/Bachelor-project-f20/shared/models"
 	"github.com/Bachelor-project-f20/users_poc/pkg/creating"
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
@@ -25,7 +25,7 @@ type handler struct {
 }
 
 func StartEventHandler(
-	eventChan <-chan etg.Event,
+	eventChan <-chan models.Event,
 	creatingService creating.Service,
 	updatingService updating.Service,
 	deletingService deleting.Service) {
@@ -46,7 +46,7 @@ func StartEventHandler(
 
 func TestingStartEventHandler(
 	testingChan chan TestObject,
-	eventChan <-chan etg.Event,
+	eventChan <-chan models.Event,
 	creatingService creating.Service,
 	updatingService updating.Service,
 	deletingService deleting.Service) {
@@ -65,7 +65,7 @@ func TestingStartEventHandler(
 	handler.handleEvents(eventChan)
 }
 
-func (h *handler) handleEvents(eventChan <-chan etg.Event) {
+func (h *handler) handleEvents(eventChan <-chan models.Event) {
 	for {
 		select {
 		case event, open := <-eventChan:
@@ -87,7 +87,7 @@ func (h *handler) handleEvents(eventChan <-chan etg.Event) {
 	}
 }
 
-func (h *handler) handleEvent(event etg.Event) {
+func (h *handler) handleEvent(event models.Event) {
 	go func() {
 		var err error
 		switch event.EventName {

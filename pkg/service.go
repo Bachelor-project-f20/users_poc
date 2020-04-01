@@ -5,8 +5,8 @@ import (
 	"log"
 
 	stan "github.com/Bachelor-project-f20/eventToGo/nats"
+	models "github.com/Bachelor-project-f20/shared/models"
 	"github.com/Bachelor-project-f20/users_poc/lib/configure"
-	pb "github.com/Bachelor-project-f20/users_poc/models/proto/gen"
 	"github.com/Bachelor-project-f20/users_poc/pkg/creating"
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	handler "github.com/Bachelor-project-f20/users_poc/pkg/event"
@@ -39,7 +39,7 @@ func Run() {
 		log.Fatalf("Error creating Emitter: %v \n", err)
 	}
 
-	outbox, err := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter, pb.User{})
+	outbox, err := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter, models.User{})
 
 	if err != nil {
 		log.Fatalf("Error creating Outbox: %v \n", err)

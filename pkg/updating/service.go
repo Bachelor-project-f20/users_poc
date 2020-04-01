@@ -5,15 +5,14 @@ import (
 	"log"
 	"time"
 
-	etg "github.com/Bachelor-project-f20/eventToGo"
 	ob "github.com/Bachelor-project-f20/go-outbox"
+	models "github.com/Bachelor-project-f20/shared/models"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/proto"
-	pb "github.com/Bachelor-project-f20/users_poc/models/proto/gen"
 )
 
 type Service interface {
-	UpdateUser(requestEvent etg.Event) error
+	UpdateUser(requestEvent models.Event) error
 }
 
 type service struct {
@@ -24,9 +23,9 @@ func NewService(outbox ob.Outbox) Service {
 	return &service{outbox}
 }
 
-func (srv *service) UpdateUser(requestEvent etg.Event) error {
+func (srv *service) UpdateUser(requestEvent models.Event) error {
 
-	user := &pb.User{}
+	user := &models.User{}
 	err := proto.Unmarshal(requestEvent.Payload, user)
 
 	if err != nil {
@@ -34,7 +33,7 @@ func (srv *service) UpdateUser(requestEvent etg.Event) error {
 		return err
 	}
 
-	userUpdatedEvent := &pb.UserUpdated{
+	userUpdatedEvent := &models.UserUpdated{
 		User: user,
 	}
 
@@ -48,7 +47,7 @@ func (srv *service) UpdateUser(requestEvent etg.Event) error {
 	id, _ := uuid.NewV4()
 	idAsString := id.String()
 
-	updateEvent := etg.Event{
+	updateEvent := models.Event{
 		ID:        idAsString,
 		Publisher: "users",
 		EventName: "user_updated",

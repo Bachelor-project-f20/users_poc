@@ -8,19 +8,19 @@ import (
 	etg "github.com/Bachelor-project-f20/eventToGo"
 	stan "github.com/Bachelor-project-f20/eventToGo/nats"
 	"github.com/Bachelor-project-f20/go-outbox"
-	"github.com/golang/protobuf/proto"
+	models "github.com/Bachelor-project-f20/shared/models"
 	"github.com/Bachelor-project-f20/users_poc/lib/configure"
-	pb "github.com/Bachelor-project-f20/users_poc/models/proto/gen"
 	"github.com/Bachelor-project-f20/users_poc/pkg/creating"
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	eventHandler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
+	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/go-nats"
 )
 
 var eventEmitter etg.EventEmitter
 var eventListener etg.EventListener
-var eventChan <-chan etg.Event
+var eventChan <-chan models.Event
 var creatingService creating.Service
 var updatingService updating.Service
 var deletingService deleting.Service
@@ -49,7 +49,7 @@ func TestServiceSetup(t *testing.T) {
 		t.Error(err)
 	}
 
-	outbox, obErr := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter, pb.User{})
+	outbox, obErr := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter, models.User{})
 
 	if obErr != nil {
 		fmt.Printf("Error creating Outbox: %v \n", err)
@@ -99,7 +99,7 @@ func test(t *testing.T) {
 
 func TestCreateRequestHandling(t *testing.T) {
 	fmt.Println("TestCreateRequestHandling")
-	user := &pb.User{
+	user := &models.User{
 		ID:       "test",
 		OfficeID: "test",
 		Name:     "creation_test_user",
@@ -112,7 +112,7 @@ func TestCreateRequestHandling(t *testing.T) {
 		t.Error(err)
 	}
 
-	creationRequest := etg.Event{
+	creationRequest := models.Event{
 		ID:        "test",
 		Publisher: "users_test",
 		EventName: "creation_request",
@@ -126,7 +126,7 @@ func TestCreateRequestHandling(t *testing.T) {
 
 func TestUpdateRequestHandling(t *testing.T) {
 	fmt.Println("TestUpdateRequestHandling")
-	user := &pb.User{
+	user := &models.User{
 		ID:       "test",
 		OfficeID: "new_office_id",
 		Name:     "creation_test_user",
@@ -139,7 +139,7 @@ func TestUpdateRequestHandling(t *testing.T) {
 		t.Error(err)
 	}
 
-	updateRequest := etg.Event{
+	updateRequest := models.Event{
 		ID:        "test",
 		Publisher: "users_test",
 		EventName: "updating_request",
@@ -153,7 +153,7 @@ func TestUpdateRequestHandling(t *testing.T) {
 
 func TestDeleteRequestHandling(t *testing.T) {
 	fmt.Println("TestDeleteRequestHandling")
-	user := &pb.User{
+	user := &models.User{
 		ID:       "test",
 		OfficeID: "new_office_id",
 		Name:     "creation_test_user",
@@ -166,7 +166,7 @@ func TestDeleteRequestHandling(t *testing.T) {
 		t.Error(err)
 	}
 
-	deletionRequest := etg.Event{
+	deletionRequest := models.Event{
 		ID:        "test",
 		Publisher: "users_test",
 		EventName: "deletion_request",
