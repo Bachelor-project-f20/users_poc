@@ -67,10 +67,8 @@ func TestingStartEventHandler(
 
 func (h *handler) handleEvents(eventChan <-chan models.Event) {
 	for {
-		fmt.Println("HERE 4")
 		select {
 		case event, open := <-eventChan:
-			fmt.Println("HERE 5")
 			if !open {
 				h.testErrors(false, "EventHandler, event channel closed. STOPPING")
 				return
@@ -92,7 +90,6 @@ func (h *handler) handleEvents(eventChan <-chan models.Event) {
 func (h *handler) handleEvent(event models.Event) {
 	go func() {
 		eventType := models.UserEvents(int32(models.UserEvents_value[event.EventName]))
-		fmt.Println("EVENTTYPE: ", eventType)
 		var err error
 		switch eventType {
 		case models.UserEvents_CREATE_USER:

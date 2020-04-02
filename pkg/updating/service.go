@@ -1,7 +1,6 @@
 package updating
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -59,7 +58,7 @@ func (srv *service) UpdateUser(requestEvent models.Event) error {
 	err = srv.ob.Update(user, updateEvent)
 
 	if err != nil {
-		fmt.Println("Error during update of user. Err: ", err)
+		log.Fatal("Error during update of user. Err: ", err)
 	}
 
 	return err

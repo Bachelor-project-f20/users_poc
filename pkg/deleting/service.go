@@ -1,7 +1,6 @@
 package deleting
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -58,7 +57,7 @@ func (srv *service) DeleteUser(requestEvent models.Event) error {
 	err = srv.ob.Delete(user, deletionEvent)
 
 	if err != nil {
-		fmt.Println("Error during deletion of user. Err: ", err)
+		log.Fatal("Error during deletion of user. Err: ", err)
 	}
 
 	return err

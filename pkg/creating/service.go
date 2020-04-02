@@ -1,7 +1,6 @@
 package creating
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -57,7 +56,7 @@ func (srv *service) CreateUser(requestEvent models.Event) error {
 	err = srv.outbox.Insert(user, creationEvent)
 
 	if err != nil {
-		fmt.Println("Error during creation of user. Err: ", err)
+		log.Fatal("Error during creation of user. Err: ", err)
 	}
 	return err
 }
