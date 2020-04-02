@@ -11,7 +11,7 @@ import (
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	handler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
-	"github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 
 	"github.com/Bachelor-project-f20/go-outbox"
 )
