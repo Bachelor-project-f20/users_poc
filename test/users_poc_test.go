@@ -63,7 +63,10 @@ func TestServiceSetup(t *testing.T) {
 		t.Error(err)
 	}
 
-	incomingEvents := []string{"creation_request", "updating_request", "deletion_request"} //I'm guessing this should probably go in the proto files?
+	incomingEvents := []string{
+		models.UserEvents_CREATE_USER.String(),
+		models.UserEvents_DELETE_USER.String(),
+		models.UserEvents_UPDATE_USER.String()}
 
 	eventChan, _, err = eventListener.Listen(incomingEvents...)
 
@@ -99,14 +102,16 @@ func test(t *testing.T) {
 
 func TestCreateRequestHandling(t *testing.T) {
 	fmt.Println("TestCreateRequestHandling")
-	user := &models.User{
-		ID:       "test",
-		OfficeID: "test",
-		Name:     "creation_test_user",
+	event := models.UserCreated{
+		User: &models.User{
+			ID:       "test",
+			OfficeID: "test",
+			Name:     "creation_test_user",
+		},
 	}
 
-	marshalUser, err := proto.Marshal(user)
-
+	marshalEvent, err := proto.Marshal(&event)
+	fmt.Println("HERE 1")
 	if err != nil {
 		fmt.Printf("Error marshalling new user, error: %v \n", err)
 		t.Error(err)
@@ -115,24 +120,27 @@ func TestCreateRequestHandling(t *testing.T) {
 	creationRequest := models.Event{
 		ID:        "test",
 		Publisher: "users_test",
-		EventName: "creation_request",
+		EventName: models.UserEvents_CREATE_USER.String(),
 		Timestamp: time.Now().UnixNano(),
-		Payload:   marshalUser,
+		Payload:   marshalEvent,
 	}
-
+	fmt.Println("HERE 2")
 	eventEmitter.Emit(creationRequest)
+	fmt.Println("HERE 3")
 	test(t)
 }
 
 func TestUpdateRequestHandling(t *testing.T) {
 	fmt.Println("TestUpdateRequestHandling")
-	user := &models.User{
-		ID:       "test",
-		OfficeID: "new_office_id",
-		Name:     "creation_test_user",
+	event := models.UserCreated{
+		User: &models.User{
+			ID:       "test",
+			OfficeID: "new_office_id",
+			Name:     "creation_test_user",
+		},
 	}
 
-	marshalUser, err := proto.Marshal(user)
+	marshalEvent, err := proto.Marshal(&event)
 
 	if err != nil {
 		fmt.Printf("Error marshalling new user, error: %v \n", err)
@@ -142,9 +150,9 @@ func TestUpdateRequestHandling(t *testing.T) {
 	updateRequest := models.Event{
 		ID:        "test",
 		Publisher: "users_test",
-		EventName: "updating_request",
+		EventName: models.UserEvents_UPDATE_USER.String(),
 		Timestamp: time.Now().UnixNano(),
-		Payload:   marshalUser,
+		Payload:   marshalEvent,
 	}
 
 	eventEmitter.Emit(updateRequest)
@@ -153,13 +161,15 @@ func TestUpdateRequestHandling(t *testing.T) {
 
 func TestDeleteRequestHandling(t *testing.T) {
 	fmt.Println("TestDeleteRequestHandling")
-	user := &models.User{
-		ID:       "test",
-		OfficeID: "new_office_id",
-		Name:     "creation_test_user",
+	event := models.UserCreated{
+		User: &models.User{
+			ID:       "test",
+			OfficeID: "new_office_id",
+			Name:     "creation_test_user",
+		},
 	}
 
-	marshalUser, err := proto.Marshal(user)
+	marshalEvent, err := proto.Marshal(&event)
 
 	if err != nil {
 		fmt.Printf("Error marshalling new user, error: %v \n", err)
@@ -169,9 +179,9 @@ func TestDeleteRequestHandling(t *testing.T) {
 	deletionRequest := models.Event{
 		ID:        "test",
 		Publisher: "users_test",
-		EventName: "deletion_request",
+		EventName: models.UserEvents_DELETE_USER.String(),
 		Timestamp: time.Now().UnixNano(),
-		Payload:   marshalUser,
+		Payload:   marshalEvent,
 	}
 
 	eventEmitter.Emit(deletionRequest)

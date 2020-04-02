@@ -51,7 +51,10 @@ func Run() {
 		log.Fatalf("Creation of Listener  failed, error: %v", err)
 	}
 
-	incomingEvents := []string{"creation_request", "updating_request", "deletion_request"} //I'm guessing this should probably go in the proto files?
+	incomingEvents := []string{
+		models.UserEvents_CREATE_USER.String(),
+		models.UserEvents_DELETE_USER.String(),
+		models.UserEvents_UPDATE_USER.String()}
 
 	eventChan, _, err := eventListener.Listen(incomingEvents...)
 

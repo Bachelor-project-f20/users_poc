@@ -25,8 +25,9 @@ func NewService(outbox ob.Outbox) Service {
 
 func (srv *service) CreateUser(requestEvent models.Event) error {
 
-	user := &models.User{}
-	err := proto.Unmarshal(requestEvent.Payload, user)
+	event := &models.CreateUser{}
+	err := proto.Unmarshal(requestEvent.Payload, event)
+	user := event.User
 
 	if err != nil {
 		log.Fatalf("Error with proto: %v \n", err)
@@ -47,8 +48,8 @@ func (srv *service) CreateUser(requestEvent models.Event) error {
 
 	creationEvent := models.Event{
 		ID:        idAsString,
-		Publisher: "users",
-		EventName: "user_created",
+		Publisher: models.UserService_USERS.String(),
+		EventName: models.UserEvents_USER_CREATED.String(),
 		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalEvent,
 	}

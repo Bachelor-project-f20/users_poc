@@ -67,8 +67,10 @@ func TestingStartEventHandler(
 
 func (h *handler) handleEvents(eventChan <-chan models.Event) {
 	for {
+		fmt.Println("HERE 4")
 		select {
 		case event, open := <-eventChan:
+			fmt.Println("HERE 5")
 			if !open {
 				h.testErrors(false, "EventHandler, event channel closed. STOPPING")
 				return
@@ -89,13 +91,15 @@ func (h *handler) handleEvents(eventChan <-chan models.Event) {
 
 func (h *handler) handleEvent(event models.Event) {
 	go func() {
+		eventType := models.UserEvents(int32(models.UserEvents_value[event.EventName]))
+		fmt.Println("EVENTTYPE: ", eventType)
 		var err error
-		switch event.EventName {
-		case "creation_request":
+		switch eventType {
+		case models.UserEvents_CREATE_USER:
 			err = h.creatingService.CreateUser(event)
-		case "updating_request":
+		case models.UserEvents_UPDATE_USER:
 			err = h.updatingService.UpdateUser(event)
-		case "deletion_request":
+		case models.UserEvents_DELETE_USER:
 			err = h.deletingService.DeleteUser(event)
 		default:
 			err = errors.New("Event not of type handled by this service")
