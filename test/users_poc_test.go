@@ -2,14 +2,13 @@ package test
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
-	stan "github.com/Bachelor-project-f20/eventToGo/nats"
-	"github.com/Bachelor-project-f20/go-outbox"
+	"github.com/Bachelor-project-f20/shared/config"
 	models "github.com/Bachelor-project-f20/shared/models"
-	"github.com/Bachelor-project-f20/users_poc/lib/configure"
 	"github.com/Bachelor-project-f20/users_poc/pkg/creating"
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	eventHandler "github.com/Bachelor-project-f20/users_poc/pkg/event"
@@ -26,42 +25,21 @@ var updatingService updating.Service
 var deletingService deleting.Service
 
 func TestServiceSetup(t *testing.T) {
-	configFile := "testConfig"
-	config, err := configure.ExtractConfiguration(configFile)
-
+	configRes, err := config.ConfigService(
+		"configFile",
+		config.ConfigValues{
+			UseEmitter:   true,
+			UseListener:  true,
+			UseOutbox:    true,
+			OutboxModels: []interface{}{models.User{}},
+		},
+	)
 	if err != nil {
-		fmt.Printf("Error extracting config file: %v \n", err)
-		fmt.Println("Using default configuration")
-
+		log.Fatalln("configuration failed, error: ", err)
+		panic("configuration failed")
 	}
-
-	encodedConn, err := setupNatsConn()
-
-	if err != nil {
-		fmt.Printf("Error connecting to Nats: %v \n", err)
-		t.Error(err)
-	}
-
-	eventEmitter, err = stan.NewNatsEventEmitter(encodedConn, config.Exchange, config.QueueType)
-
-	if err != nil {
-		fmt.Printf("Creation of event emitter failed, error: %v \n", err)
-		t.Error(err)
-	}
-
-	outbox, obErr := outbox.NewOutbox(config.DatabaseType, config.DatabaseConnection, eventEmitter, models.User{})
-
-	if obErr != nil {
-		fmt.Printf("Error creating Outbox: %v \n", err)
-		t.Error(err)
-	}
-
-	eventListener, err = stan.NewNatsEventListener(encodedConn, config.Exchange, config.QueueType)
-
-	if err != nil {
-		fmt.Printf("Creation of Listener  failed, error: %v", err)
-		t.Error(err)
-	}
+	eventEmitter = configRes.EventEmitter
+	eventListener = configRes.EventListener
 
 	incomingEvents := []string{
 		models.UserEvents_CREATE_USER.String(),
@@ -75,9 +53,9 @@ func TestServiceSetup(t *testing.T) {
 		t.Error(err)
 	}
 
-	creatingService = creating.NewService(outbox)
-	updatingService = updating.NewService(outbox)
-	deletingService = deleting.NewService(outbox)
+	creatingService = creating.NewService(configRes.Outbox)
+	updatingService = updating.NewService(configRes.Outbox)
+	deletingService = deleting.NewService(configRes.Outbox)
 }
 
 func test(t *testing.T) {
