@@ -13,9 +13,18 @@ import (
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	eventHandler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
 )
+
+// To run the tests, a local Docker container, based on the following Docker image
+// must be running, on port 9911 (unless the test code is changed):
+// https://hub.docker.com/r/s12v/sns/?fbclid=IwAR23X1mEVHH5Q64awf-ZtyzC_r712-yjfmqEQGRvDCT8LYfMkdyP4goTxdE
+
+// Alternatively, one can attach to an actual SNS instance, by using the SharedConfigState session initialization
 
 var eventEmitter etg.EventEmitter
 var eventListener etg.EventListener
@@ -23,15 +32,40 @@ var eventChan <-chan models.Event
 var creatingService creating.Service
 var updatingService updating.Service
 var deletingService deleting.Service
+var svc *sns.SNS
 
 func TestServiceSetup(t *testing.T) {
+	//AnonymousCredentials for the mock SNS instance
+	//SSL disabled, because it's easier when testing
+	//localhost:991 is where the fake SNS container should be running
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		Config: aws.Config{Credentials: credentials.AnonymousCredentials, Endpoint: aws.String("http://localhost:9911"), Region: aws.String("us-east-1"), DisableSSL: aws.Bool(true)},
+	}))
+
+	svc = sns.New(sess)
+
+	incomingEvents := []string{
+		models.UserEvents_CREATE_USER.String(),
+		models.UserEvents_DELETE_USER.String(),
+		models.UserEvents_UPDATE_USER.String()}
+
+	outgoingEvents := []string{
+		models.UserEvents_USER_CREATED.String(),
+		models.UserEvents_USER_UPDATED.String(),
+		models.UserEvents_USER_DELETED.String()}
+
+	incomingAndOutgoingEvents := append(incomingEvents, outgoingEvents...)
+
 	configRes, err := config.ConfigService(
 		"configFile",
 		config.ConfigValues{
-			UseEmitter:   true,
-			UseListener:  true,
-			UseOutbox:    true,
-			OutboxModels: []interface{}{models.User{}},
+			UseEmitter:        true,
+			UseListener:       true,
+			MessageBrokerType: etg.SNS,
+			SNSClient:         svc,
+			Events:            incomingAndOutgoingEvents,
+			UseOutbox:         true,
+			OutboxModels:      []interface{}{models.User{}},
 		},
 	)
 	if err != nil {
@@ -41,12 +75,7 @@ func TestServiceSetup(t *testing.T) {
 	eventEmitter = configRes.EventEmitter
 	eventListener = configRes.EventListener
 
-	incomingEvents := []string{
-		models.UserEvents_CREATE_USER.String(),
-		models.UserEvents_DELETE_USER.String(),
-		models.UserEvents_UPDATE_USER.String()}
-
-	eventChan, _, err = eventListener.Listen(incomingEvents...)
+	eventChan, _, err = eventListener.Listen(incomingAndOutgoingEvents...)
 
 	if err != nil {
 		fmt.Printf("Creation of subscriptions failed, error: %v \n", err)
@@ -89,7 +118,7 @@ func TestCreateRequestHandling(t *testing.T) {
 	}
 
 	marshalEvent, err := proto.Marshal(&event)
-	fmt.Println("HERE 1")
+
 	if err != nil {
 		fmt.Printf("Error marshalling new user, error: %v \n", err)
 		t.Error(err)
@@ -102,9 +131,8 @@ func TestCreateRequestHandling(t *testing.T) {
 		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalEvent,
 	}
-	fmt.Println("HERE 2")
+
 	eventEmitter.Emit(creationRequest)
-	fmt.Println("HERE 3")
 	test(t)
 }
 
@@ -164,24 +192,4 @@ func TestDeleteRequestHandling(t *testing.T) {
 
 	eventEmitter.Emit(deletionRequest)
 	test(t)
-}
-
-func setupNatsConn() (*nats.EncodedConn, error) {
-
-	natsConn, err := nats.Connect("localhost:4222")
-
-	if err != nil {
-		fmt.Println("Connection to Nats failed")
-		return nil, err
-	}
-
-	encodedConn, err := nats.NewEncodedConn(natsConn, "json")
-
-	if err != nil {
-		fmt.Println("Creation of encoded connection failed")
-		return nil, err
-	}
-
-	return encodedConn, nil
-
 }
