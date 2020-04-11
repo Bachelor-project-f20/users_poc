@@ -1,7 +1,9 @@
 package pkg
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/Bachelor-project-f20/shared/config"
 	models "github.com/Bachelor-project-f20/shared/models"
@@ -9,6 +11,7 @@ import (
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	handler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var configFile string = "configPath"
@@ -42,6 +45,15 @@ func Run() {
 	creatingService := creating.NewService(configRes.Outbox)
 	updatingService := updating.NewService(configRes.Outbox)
 	deletingService := deleting.NewService(configRes.Outbox)
+
+	go func() {
+		fmt.Println("Serving metrics API")
+
+		h := http.NewServeMux()
+		h.Handle("/metrics", promhttp.Handler())
+
+		http.ListenAndServe(":9191", h)
+	}()
 
 	handler.StartEventHandler(
 		eventChan,
