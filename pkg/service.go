@@ -1,7 +1,9 @@
 package pkg
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 
 	etg "github.com/Bachelor-project-f20/eventToGo"
 	"github.com/Bachelor-project-f20/shared/config"
@@ -10,6 +12,7 @@ import (
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	handler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -67,6 +70,15 @@ func Run() {
 	creatingService := creating.NewService(configRes.Outbox)
 	updatingService := updating.NewService(configRes.Outbox)
 	deletingService := deleting.NewService(configRes.Outbox)
+
+	go func() {
+		fmt.Println("Serving metrics API")
+
+		h := http.NewServeMux()
+		h.Handle("/metrics", promhttp.Handler())
+
+		http.ListenAndServe(":9191", h)
+	}()
 
 	handler.StartEventHandler(
 		eventChan,
