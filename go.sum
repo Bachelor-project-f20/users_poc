@@ -2,8 +2,8 @@ github.com/Bachelor-project-f20/eventToGo v0.2.4 h1:W/klSZFbnH9sOBpeluky3ZqSdPRz
 github.com/Bachelor-project-f20/eventToGo v0.2.4/go.mod h1:4KiRntKxouSCYWz/5PsOwvuYtMS68ax3XVeK+h2DCag=
 github.com/Bachelor-project-f20/go-outbox v0.2.1 h1:0Z0WCqfUydv0JHN6Tg0yjEQ+y3JmWOCrQ9JFkcv3c38=
 github.com/Bachelor-project-f20/go-outbox v0.2.1/go.mod h1:1unc5ADjpmoJzvf6IbBFCjPM+EruAo+Y+yfqfc3no0k=
-github.com/Bachelor-project-f20/shared v0.1.8 h1:L4kBeLxGNWdx0XLkGZt0g5LBC+YITZNcr5CnlhUxFBc=
-github.com/Bachelor-project-f20/shared v0.1.8/go.mod h1:lvtsUm9VlnH6yjugASDVo8jUpmKBEHvJBQHmuLxlQCg=
+github.com/Bachelor-project-f20/shared v0.2.1 h1:L4kBeLxGNWdx0XLkGZt0g5LBC+YITZNcr5CnlhUxFBc=
+github.com/Bachelor-project-f20/shared v0.2.1/go.mod h1:lvtsUm9VlnH6yjugASDVo8jUpmKBEHvJBQHmuLxlQCg=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
