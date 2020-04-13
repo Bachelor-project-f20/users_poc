@@ -12,11 +12,11 @@ import (
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	handler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sns"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var configFile string = "configPath"
