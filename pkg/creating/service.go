@@ -51,6 +51,7 @@ func (srv *service) CreateUser(requestEvent models.Event) error {
 		EventName: models.UserEvents_USER_CREATED.String(),
 		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalEvent,
+		ApiTag:    requestEvent.ApiTag,
 	}
 
 	err = srv.outbox.Insert(user, creationEvent)

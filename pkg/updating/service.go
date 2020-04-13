@@ -53,6 +53,7 @@ func (srv *service) UpdateUser(requestEvent models.Event) error {
 		EventName: models.UserEvents_USER_UPDATED.String(),
 		Timestamp: time.Now().UnixNano(),
 		Payload:   marshalEvent,
+		ApiTag:    requestEvent.ApiTag,
 	}
 
 	err = srv.ob.Update(user, updateEvent)
