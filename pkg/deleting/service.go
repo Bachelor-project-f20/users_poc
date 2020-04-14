@@ -24,7 +24,7 @@ func NewService(outbox ob.Outbox) Service {
 
 func (srv *service) DeleteUser(requestEvent models.Event) error {
 
-	event := &models.CreateUser{}
+	event := &models.DeleteUser{}
 	err := proto.Unmarshal(requestEvent.Payload, event)
 	user := event.User
 

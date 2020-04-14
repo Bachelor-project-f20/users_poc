@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/Bachelor-project-f20/eventToGo v0.2.4
 	github.com/Bachelor-project-f20/go-outbox v0.2.3
-	github.com/Bachelor-project-f20/shared v0.2.0
+	github.com/Bachelor-project-f20/shared v0.2.1
 	github.com/aws/aws-sdk-go v1.30.7
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/golang/protobuf v1.3.5

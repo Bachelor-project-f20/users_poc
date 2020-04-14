@@ -12,26 +12,12 @@ import (
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	handler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var configFile string = "configPath"
 
 func Run() {
-
-	// AnonymousCredentials for the mock SNS instance
-	// SSL disabled, because it's easier when testing
-	// localhost:991 is where the fake SNS container should be running
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Credentials: credentials.AnonymousCredentials, Endpoint: aws.String("http://localhost:9911"), Region: aws.String("us-east-1"), DisableSSL: aws.Bool(true)},
-	}))
-
-	svc := sns.New(sess)
-
 	incomingEvents := []string{
 		models.UserEvents_CREATE_USER.String(),
 		models.UserEvents_DELETE_USER.String(),
@@ -50,7 +36,6 @@ func Run() {
 			UseEmitter:        true,
 			UseListener:       true,
 			MessageBrokerType: etg.SNS,
-			SNSClient:         svc,
 			Events:            incomingAndOutgoingEvents,
 			UseOutbox:         true,
 			OutboxModels:      []interface{}{models.User{}},

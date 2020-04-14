@@ -13,10 +13,6 @@ import (
 	"github.com/Bachelor-project-f20/users_poc/pkg/deleting"
 	eventHandler "github.com/Bachelor-project-f20/users_poc/pkg/event"
 	"github.com/Bachelor-project-f20/users_poc/pkg/updating"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -32,17 +28,8 @@ var eventChan <-chan models.Event
 var creatingService creating.Service
 var updatingService updating.Service
 var deletingService deleting.Service
-var svc *sns.SNS
 
 func TestServiceSetup(t *testing.T) {
-	//AnonymousCredentials for the mock SNS instance
-	//SSL disabled, because it's easier when testing
-	//localhost:991 is where the fake SNS container should be running
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{Credentials: credentials.AnonymousCredentials, Endpoint: aws.String("http://localhost:9911"), Region: aws.String("us-east-1"), DisableSSL: aws.Bool(true)},
-	}))
-
-	svc = sns.New(sess)
 
 	incomingEvents := []string{
 		models.UserEvents_CREATE_USER.String(),
@@ -62,7 +49,6 @@ func TestServiceSetup(t *testing.T) {
 			UseEmitter:        true,
 			UseListener:       true,
 			MessageBrokerType: etg.SNS,
-			SNSClient:         svc,
 			Events:            incomingAndOutgoingEvents,
 			UseOutbox:         true,
 			OutboxModels:      []interface{}{models.User{}},
@@ -105,6 +91,10 @@ func test(t *testing.T) {
 		t.Error(testResult.Err)
 	}
 	testingChan <- eventHandler.TestObject{}
+	//Needed to handle latency between the sending and receiving  of the "action performed" events,
+	//e.g. OfficeCreated. In production, there would be another service receiving it, but since the
+	//only subscriber to these in testing, are the services themselves, we have to await receiving that message
+	time.Sleep(1 * time.Second)
 }
 
 func TestCreateRequestHandling(t *testing.T) {
@@ -138,7 +128,7 @@ func TestCreateRequestHandling(t *testing.T) {
 
 func TestUpdateRequestHandling(t *testing.T) {
 	fmt.Println("TestUpdateRequestHandling")
-	event := models.UserCreated{
+	event := models.UserUpdated{
 		User: &models.User{
 			ID:       "test",
 			OfficeID: "new_office_id",
@@ -167,7 +157,7 @@ func TestUpdateRequestHandling(t *testing.T) {
 
 func TestDeleteRequestHandling(t *testing.T) {
 	fmt.Println("TestDeleteRequestHandling")
-	event := models.UserCreated{
+	event := models.UserDeleted{
 		User: &models.User{
 			ID:       "test",
 			OfficeID: "new_office_id",
